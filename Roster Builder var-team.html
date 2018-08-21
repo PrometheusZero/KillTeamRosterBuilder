@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)file://userfs/aw1203/w2k/Desktop/KT/RosterBuilder.html -->
+<html lang="en-GB"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<title>Roster Builder</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+		<style type="text/css">
+			.myTable {
+				margin:20px;
+			}
+		</style>
+		
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col s12 m6">
+					<h2>Roster Builder</h2>
+				</div>
+				<div class="col s12 m6">
+					<div class="input-field inline">
+						<input id="qtyReturns" type="text" class="validate">
+						<label for="qtyReturns">How many squads</label>
+					</div>
+					<div class="input-field inline">
+						<input id="lowerLimit" type="text" class="validate">
+						<label for="lowerLimit">Lower Limit</label>
+					</div>
+					pts and 
+					<div class="input-field inline">
+						<input id="upperLimit" type="text" class="validate">
+						<label for="upperLimit">Upper Limit</label>
+					</div>
+					<button id="rosterSubmit" class="btn waves-effect waves-light" type="submit" name="action">Submit</button>
+					<span id="numberBins"></span>
+				</div>
+			</div>
+			<br /><br />
+			<div class="row">
+				<div id="left" class="col s12 m6">
+				
+				</div>
+				<div id="right" class="col s12 m6">
+				
+				</div>
+			</div>
+		</div>
+		
+		<script
+			src="https://code.jquery.com/jquery-3.3.1.slim.js"
+			integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA="
+			crossorigin="anonymous">
+		</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+		<script type="text/javascript">
+			let roster = {
+				leaders:[ //length=2
+					{model:"Tactical Marine Sergeant",cost:13,specilisation:"Leader",equip:"Bolt Pistol & Chainsword"},
+					{model:"Intercessor Sergeant",cost:18,specilisation:"Leader",equip:"Bolt Pistol & Power Sword"}
+				],
+				specialists:[ //length=10
+					{model:"Tactical Marine Gunner",cost:16,specilisation:"Heavy",equip:"Meltagun"},
+					{model:"Tactical Marine Gunner",cost:16,specilisation:"Demolitions",equip:"Flamer"},
+					{model:"Tactical Marine Gunner",cost:16,specilisation:"Veteran",equip:"Plasmagun"},
+					{model:"Tactical Marine",cost:12,specilisation:"Comms",equip:"Boltgun"},
+					{model:"Scout Sergeant",cost:11,specilisation:"Combat",equip:"Bolt Pistol & Combat Knife"},
+					{model:"Scout Gunner",cost:14,specilisation:"Heavy",equip:"Heavy Bolter"},
+					{model:"Scout",cost:10,specilisation:"Scout",equip:"Shotgun"},
+					{model:"Scout",cost:12,specilisation:"Sniper",equip:"Sniper Rifle & Camo Cloak"},
+					{model:"Reiver Sergeant",cost:17,specilisation:"Combat",equip:"Heavy Bolt Pistol & Combat Knife"},
+					{model:"Intercessor",cost:15,specilisation:"Comms",equip:"Bolt Rifle"}
+				],
+				fireTeams:[ //length=4
+					{model:"Tactical Marine",cost:12,specilisation:"Fire Team",equip:"Boltgun"},
+					{model:"Scout",cost:10,specilisation:"Fire Team",equip:"Bolt Pistol & Combat Knife"},
+					{model:"Reiver",cost:16,specilisation:"Fire Team",equip:"Heavy Bolt Pistol & Combat Knife"},
+					{model:"Intercessor",cost:15,specilisation:"Fire Team",equip:"Bolt Rifle"}
+				]
+			}
+			
+			
+			let numberOfSquads = 20;
+			let generatedIdeas = [];
+			let numberOfBins = 0;
+			let lowerLimit = 96;
+			let upperLimit = 100;
+			
+			//take user inputs, validate and set globals
+			$('#rosterSubmit').click(function(){
+				//take inputs
+				let qtyInput = parseInt($('#qtyReturns').val());
+				let lowerInput = parseInt($('#lowerLimit').val());
+				let upperInput = parseInt($('#lowerLimit').val());
+				//validate and set qty
+				if(isNaN(qtyInput) || qtyInput > 100){
+					numberOfSquads = 20;
+				}else{
+					numberOfSquads = qtyInput;
+				}
+				//validate and set lower
+				if(isNaN(lowerInput) || lowerInput > upperInput || lowerInput < 1){
+					lowerLimit = 90;
+				}else{
+					lowerLimit = lowerInput;
+				}
+				//validate and set upper
+				if(isNaN(upperInput) || lowerInput > upperInput || upperInput > 1000){
+					upperInput = 100;
+				}else{
+					upperLimit = upperInput;
+				}
+				
+				samples();
+			});
+			
+			//call builder x times and call printer
+			function samples(){
+				while(generatedIdeas.length < numberOfSquads){
+					assembleTeam();
+					if(numberOfBins > 1000){
+						return;
+					}
+				}
+				printData();
+			}
+			
+			//print data to screen
+			function printData(){
+				if(!generatedIdeas.length){
+					return;
+				}
+				generatedIdeas.forEach(function(item, index){
+					let tableConstruction = "<table class='myTable'>";
+					tableConstruction += "<tr><th colspan='4'>Kill Team Option " + (index+1) + ":  " + item.metadata.size + " models, " + item.metadata.cost + "pts</th></tr>";
+					tableConstruction += "<tr><th>Model</th><th>Specialisation</th><th>Equipment</th><th>Cost</th></tr>";
+					item.data.forEach(function(subitem){
+						tableConstruction += "<tr><td>" + subitem.model + "</td><td>" + subitem.specilisation +  "</td><td>" + subitem.equip + "</td><td>" + subitem.cost + "</td></tr>"
+					})
+					tableConstruction += "</table><br />";
+					
+					if(index % 2 === 0){
+						$('#left').append(tableConstruction);
+					}else{
+						$('#right').append(tableConstruction);
+					}
+				});
+				$('#numberBins').text(numberOfBins + " bins");
+			}
+			
+			//utility - return random 0 to *range-1* -> perfect for array len to index calcs!
+			function pick(range){
+				return Math.floor(Math.random()*range);
+			}
+			
+			//main squad builder
+			function assembleTeam(){
+				let team = [];
+				let numSpecial = 3;
+				let numFireTeam = 3;
+				
+				let variation = pick(6);
+				//	variation = 4;
+				
+				if(variation === 0){
+					numSpecial = 3;
+					numFireTeam = 3;
+				}else if(variation === 1){
+					numSpecial = 2;
+					numFireTeam = 4;
+				}else if(variation === 2){
+					numSpecial = 3;
+					numFireTeam = 2;
+				}else if(variation === 3){
+					numSpecial = 2;
+					numFireTeam = 3;
+				}else if(variation === 4){
+					numSpecial = 3;
+					numFireTeam = 4;
+				}else if(variation === 5){
+					numSpecial = 3;
+					numFireTeam = 5;
+				}
+				
+				//select one leader and only one!
+				team.push(roster.leaders[pick(roster.leaders.length)]);
+				
+
+				//make soft copy of specialists array
+				let tempPool = 	roster.specialists.slice();
+				
+				//loop numSpecialists times
+				for(let i=0;i<numSpecial;i++){
+				
+					//pick first specialist at random, note specilisation and push to team
+					let index = pick(tempPool.length);
+					let chosenSpec = tempPool[index].specilisation;
+					team.push(tempPool[index]);
+					
+					//loop through tempPool looking for same specialisations as pushed one
+					for(let j=0;j<tempPool.length;j++){
+						console.log("guy " + (i+1) + " is " + chosenSpec + ", looking at position " + (j+1) + " who is " + tempPool[j].specilisation);
+						if(tempPool[j].specilisation === chosenSpec){
+							//if specialisations match, remove other specialisation and bump search back!
+							tempPool.splice(j,1);
+							j--;
+						}
+					}
+				}
+				
+				
+				
+				//select fireteam and addons
+				let firstPick = pick(4);
+				let tempAdd = roster.fireTeams.slice();
+				
+				team.push(tempAdd[firstPick]);
+				team.push(tempAdd[firstPick]);
+				tempAdd.splice(firstPick,1);
+				
+				if(numFireTeam > 2){
+					let secondPick = pick(3);
+					team.push(tempAdd[secondPick]);
+					if(numFireTeam === 4){
+						team.push(tempAdd[secondPick]);
+					}
+				}
+				
+
+				
+				//generate meta and post
+				let teamCost = 0;
+				team.forEach(function(item){
+					teamCost += item.cost;
+				})
+				if(teamCost >= lowerLimit && teamCost <= upperLimit){
+					let killTeam = {
+						metadata:{
+							cost: teamCost,
+							size: team.length
+						},
+						data: team
+					}
+					generatedIdeas.push(killTeam);
+				}else{
+					numberOfBins++;
+				}
+			}
+		</script>
+	
+</body></html>
