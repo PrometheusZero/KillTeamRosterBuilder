@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<title>Roster Builder</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+		<style type="text/css">
+			.myTable {
+				margin:20px;
+			}
+		</style>
+		
+	</head>
+	<body>
+		<div class="container">
+
+			<!-- CREATE KILL TEAMS -->
+			<div id="createKT">
+				<div class="row">
+					<div class="col s12 m6">
+						<h2>Roster Builder</h2>
+					</div>
+					<div class="col s12 m6">
+						<div class="input-field inline">
+							<input id="qtyReturns" type="text" class="validate">
+							<label for="qtyReturns">How many squads</label>
+						</div>
+						<div class="input-field inline">
+							<input id="lowerLimit" type="text" class="validate">
+							<label for="lowerLimit">Lower Limit</label>
+						</div>
+						pts and 
+						<div class="input-field inline">
+							<input id="upperLimit" type="text" class="validate">
+							<label for="upperLimit">Upper Limit</label>
+						</div>
+						<button id="rosterSubmit" class="btn waves-effect waves-light" type="submit" name="action">Submit</button>
+						<span id="numberBins"></span>
+					</div>
+				</div>
+				<br /><br />
+				<div class="row">
+					<div id="left" class="col s12 m6">
+					
+					</div>
+					<div id="right" class="col s12 m6">
+					
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<script
+			src="https://code.jquery.com/jquery-3.3.1.slim.js"
+			integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA="
+			crossorigin="anonymous">
+		</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+		<script type="text/javascript">
+			
+			let roster = {
+				hq:[ //length=2
+					{unit:"Captain Shred",powerLevel:105,description:"Captain with JP and Twin Lightning Claws",UID:1},
+					{unit:"Primaris Captain",powerLevel:118,description:"P Captain in Gravis Armour with Boltstorm Guantlet",UID:2},
+					{unit:"Chaplain",powerLevel:97,description:"Chaplain with JP, Inferno Pistol and Crozius",UID:3},
+					{unit:"Primaris Leiutennant",powerLevel:74,description:"Leiutennant with Power Sword and Bolt Pistol",UID:4},
+					{unit:"Librarian",powerLevel:112,description:"Librarian with JP and Force Staff",UID:5},
+					{unit:"Primaris Leiutennant",powerLevel:75,description:"Leiutennant with Master-crafter Stalker Bolt Rifle",UID:6},
+					{unit:"Librarian Dreadnought",powerLevel:154,description:"Librarian Dread with Fist, Force Halberd and Heavy Flamer",UID:7},
+				],
+				troops:[ //length=10
+					{unit:"Tactical Squad",powerLevel:79,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Heavy Flamer",UID:1},
+					{unit:"Tactical Squad",powerLevel:79,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Heavy Flamer",UID:2},
+					{unit:"Tactical Squad",powerLevel:161,description:"Sgt w/ BP&CS, 7w/ Boltgun, 1w/ Plasma Gun, 1w/ Missile launcher",UID:3},
+					{unit:"Tactical Squad",powerLevel:76,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Plasma Gun",UID:3},
+					{unit:"Tactical Squad",powerLevel:85,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Missile Launcher",UID:3},
+					{unit:"Tactical Squad",powerLevel:161,description:"Sgt w/ BP&CS, 7w/ Boltgun, 1w/ Plasma Gun, 1w/ Missile launcher",UID:4},
+					{unit:"Tactical Squad",powerLevel:76,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Plasma Gun",UID:4},
+					{unit:"Tactical Squad",powerLevel:85,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Missile Launcher",UID:4},
+					{unit:"Scout Squad",powerLevel:160,description:"Sgt w/ SR&Camo, 9w/ SR&Camo",UID:5},
+					{unit:"Scout Squad",powerLevel:80,description:"Sgt w/ SR&Camo, 4w/ SR&Camo",UID:5},
+					{unit:"Intercessor Squad",powerLevel:85,description:"Sgt w/ Bolt Rifle, 4w/ Bolt RIfle",UID:6}
+				],
+				notTroops:[
+					{unit:"Death Company",powerLevel:244,description:"10w/ JP, 2 PF, PSw, PAx, TH and Hand Flamer",UID:1},
+					{unit:"Death Company",powerLevel:116,description:"5w/ JP 1 w/ TH, 1w/ Hand Flamer",UID:1},
+					{unit:"Sanguinary Guard",powerLevel:152,description:"4w/ JP, Encarmine Weapons 1w/ Inferno Pistol",UID:2},
+					{unit:"Sanguinary Ancient",powerLevel:79,description:"Ancient w/ Encarmine Sword, Angelus Boltgun and Big Ass flag",UID:3},
+					{unit:"Aggressor Squad",powerLevel:108,description:"3w/ Flamstorm Guantlets",UID:4},
+					{unit:"Terminator Squad",powerLevel:165,description:"Sgt w/ Power Sword & Storm Bolter, 4w/ Power Fist & Storm Bolter",UID:5},
+					{unit:"Dreadnought",powerLevel:114,description:"Dreddy with Fist and Assault Cannon",UID:6},
+					{unit:"Inceptor Squad",powerLevel:135,description:"3w/ Dual Assault Bolters",UID:7},
+					{unit:"Inceptor Squad",powerLevel:177,description:"3w/ Dual Plasma Exterminators",UID:8},
+					{unit:"Bike Squad",powerLevel:69,description:"3 Bikes",UID:9},
+					{unit:"Bike Squad",powerLevel:118,description:"3 Bikes + Attack Bike w/ Multi-Melta",UID:9},
+					{unit:"Bike Squad",powerLevel:49,description:"1 Attack Bike w/ Multi-melta",UID:9},
+					{unit:"Devastator Squad",powerLevel:212,description:"Sgt w/ Signum, 4w/ Heavy Weapons, 5w/ Boltgun",UID:10},
+					{unit:"Hellblaster Squad",powerLevel:165,description:"5w/ Plasma Incinerators",UID:11},
+					{unit:"Preadator",powerLevel:180,description:"1 Preadator with Twin Lascannon + 2 Lascannon",UID:12},
+					{unit:"Rhino",powerLevel:72,description:"Carry 10, Storm Bolter",UID:13},
+					{unit:"Razorback",powerLevel:82,description:"Carry 6, Twin Heavy Bolter",UID:14},
+					{unit:"Razorback",powerLevel:105,description:"Carry 6, Twin Lascannon",UID:15},
+					{unit:"Furioso Dreadnought",powerLevel:149,description:"Dreddy with Fist, Frag Cannon and Magna-grapple",UID:16},
+				],
+				elites:[
+					{unit:"Death Company",powerLevel:244,description:"10w/ JP and assortment of weapons!",UID:1},
+					{unit:"Death Company",powerLevel:116,description:"5w/ JP and assortment of weapons!",UID:1},
+					{unit:"Sanguinary Guard",powerLevel:152,description:"4w/ JP, Encarmine Weapons 1w/ Inferno Pistol",UID:2},
+					{unit:"Sanguinary Ancient",powerLevel:79,description:"Ancient w/ Encarmine Sword, Angelus Boltgun and Big Ass flag",UID:3},
+					{unit:"Aggressor Squad",powerLevel:108,description:"3w/ Flamstorm Guantlets",UID:4},
+					{unit:"Terminator Squad",powerLevel:165,description:"Sgt w/ Power Sword & Storm Bolter, 4w/ Power Fist & Storm Bolter",UID:5},
+					{unit:"Dreadnought",powerLevel:114,description:"Dreddy with Big Badda Boom and Smashy Facey",UID:6},
+					{unit:"Furioso Dreadnought",powerLevel:149,description:"Dreddy with Fist, Frag Cannon and Magna-grapple",UID:7},
+				],
+				notElites:[
+					{unit:"Tactical Squad",powerLevel:79,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Heavy Flamer",UID:1},
+					{unit:"Tactical Squad",powerLevel:79,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Heavy Flamer",UID:2},
+					{unit:"Tactical Squad",powerLevel:161,description:"Sgt w/ BP&CS, 7w/ Boltgun, 1w/ Plasma Gun, 1w/ Missile launcher",UID:3},
+					{unit:"Tactical Squad",powerLevel:76,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Plasma Gun",UID:3},
+					{unit:"Tactical Squad",powerLevel:85,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Missile launcher",UID:3},
+					{unit:"Tactical Squad",powerLevel:161,description:"Sgt w/ BP&CS, 7w/ Boltgun, 1w/ Plasma Gun, 1w/ Missile launcher",UID:4},
+					{unit:"Tactical Squad",powerLevel:76,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Plasma Gun",UID:4},
+					{unit:"Tactical Squad",powerLevel:85,description:"Sgt w/ BP&CS, 3w/ Boltgun, 1w/ Missile launcher",UID:4},
+					{unit:"Scout Squad",powerLevel:160,description:"Sgt w/ SR&Camo, 9w/ SR&Camo",UID:5},
+					{unit:"Scout Squad",powerLevel:80,description:"Sgt w/ SR&Camo, 4w/ SR&Camo",UID:5},
+					{unit:"Intercessor Squad",powerLevel:85,description:"Sgt w/ Bolt Rifle, 4w/ Bolt RIfle",UID:6},
+					{unit:"Inceptor Squad",powerLevel:135,description:"3w/ Dual Assault Bolters",UID:7},
+					{unit:"Inceptor Squad",powerLevel:177,description:"3w/ Dual Plasma Exterminators",UID:8},
+					{unit:"Bike Squad",powerLevel:69,description:"3 Bikes",UID:9},
+					{unit:"Bike Squad",powerLevel:118,description:"3 Bikes + Attack Bike w/ Multi-melta",UID:9},
+					{unit:"Bike Squad",powerLevel:49,description:"1 Attack Bike w/ Multi-melta",UID:9},
+					{unit:"Devastator Squad",powerLevel:212,description:"Sgt w/ Signum, 4w/ Heavy Weapons, 5w/ Boltgun",UID:10},
+					{unit:"Hellblaster Squad",powerLevel:165,description:"5w/ Plasma Incinerators",UID:11},
+					{unit:"Preadator",powerLevel:180,description:"1 Preadator with Twin Lascannon + 2 Lascannon",UID:12},
+					{unit:"Rhino",powerLevel:72,description:"Carry 10, Storm Bolter",UID:13},
+					{unit:"Razorback",powerLevel:82,description:"Carry 6, Twin Heavy Bolter",UID:14},
+					{unit:"Razorback",powerLevel:105,description:"Carry 6, Twin Lascannon",UID:15}
+					
+				],
+				notTRorEL:[
+					{unit:"Inceptor Squad",powerLevel:135,description:"3w/ Dual Assault Bolters",UID:1},
+					{unit:"Inceptor Squad",powerLevel:177,description:"3w/ Dual Plasma Exterminators",UID:2},
+					{unit:"Bike Squad",powerLevel:69,description:"3 Bikes",UID:3},
+					{unit:"Bike Squad",powerLevel:118,description:"3 Bikes + Attack Bike w/ Multi-Melta",UID:3},
+					{unit:"Bike Squad",powerLevel:138,description:"6 Bikes",UID:3},
+					{unit:"Bike Squad",powerLevel:233,description:"8 Bikes + Attack Bike w/ Multi-Melta",UID:3},
+					{unit:"Bike Squad",powerLevel:49,description:"1 Attack Bike",UID:3},
+					{unit:"Devastator Squad",powerLevel:212,description:"Sgt w/ Signum, 4w/ Heavy Weapons, 5w/ Boltgun",UID:4},
+					{unit:"Hellblaster Squad",powerLevel:165,description:"5w/ Plasma Incinerators",UID:5},
+					{unit:"Preadator",powerLevel:180,description:"1 Preadator with Twin Lascannon + 2 Lascannon",UID:6},
+					{unit:"Rhino",powerLevel:72,description:"Carry 10, Storm Bolter",UID:7},
+					{unit:"Razorback",powerLevel:82,description:"Carry 6, Twin Heavy Bolter",UID:8},
+					{unit:"Razorback",powerLevel:105,description:"Carry 6, Twin Lascannon",UID:9}
+				],
+				fastAtatck:[
+					{unit:"Inceptor Squad",powerLevel:135,description:"3w/ Dual Assault Bolters",UID:1},
+					{unit:"Inceptor Squad",powerLevel:177,description:"3w/ Dual Plasma Exterminators",UID:2},
+					{unit:"Bike Squad",powerLevel:69,description:"3 Bikes",UID:3},
+					{unit:"Bike Squad",powerLevel:118,description:"3 Bikes + Attack Bike w/ Multi-Melta",UID:3},
+					{unit:"Bike Squad",powerLevel:138,description:"6 Bikes",UID:3},
+					{unit:"Bike Squad",powerLevel:233,description:"8 Bikes + Attack Bike w/ Multi-Melta",UID:3},
+					{unit:"Bike Squad",powerLevel:49,description:"1 Attack Bike",UID:3}
+				],
+				heavySupport:[
+					{unit:"Devastator Squad",powerLevel:212,description:"Sgt w/ Signum, 4w/ Heavy Weapons, 5w/ Boltgun",UID:1},
+					{unit:"Hellblaster Squad",powerLevel:165,description:"5w/ Plasma Incinerators",UID:2},
+					{unit:"Preadator",powerLevel:180,description:"1 Preadator with Twin Lascannon + 2 Lascannon",UID:3}
+				],
+				dedicatedTransport:[
+					{unit:"Rhino",powerLevel:72,description:"Carry 10, Storm Bolter",UID:1},
+					{unit:"Razorback",powerLevel:82,description:"Carry 6, Twin Heavy Bolter",UID:2},
+					{unit:"Razorback",powerLevel:105,description:"Carry 6, Twin Lascannon",UID:3}
+				]
+			}
+			
+			
+			let numberOfSquads = 20;
+			let generatedIdeas = [];
+			let numberOfBins = 0;
+			let lowerLimit = 1450;
+			let upperLimit = 1500;
+			
+			
+			//take user inputs for generating kill teams, validate and set globals
+			$('#rosterSubmit').click(function(){
+				//take inputs
+				let qtyInput = parseInt($('#qtyReturns').val());
+				let lowerInput = parseInt($('#lowerLimit').val());
+				let upperInput = parseInt($('#upperLimit').val());
+				//validate and set qty
+				if(isNaN(qtyInput) || qtyInput > 100){
+					numberOfSquads = 20;
+				}else{
+					numberOfSquads = qtyInput;
+				}
+				//validate and set lower
+				if(isNaN(lowerInput) || lowerInput > upperInput || lowerInput < 1){
+					lowerLimit = 1450;
+				}else{
+					lowerLimit = lowerInput;
+				}
+				//validate and set upper
+				if(isNaN(upperInput) || lowerInput > upperInput || upperInput > 1000){
+					upperInput = 1500;
+				}else{
+					upperLimit = upperInput;
+				}
+				
+				samples();
+			});
+			
+			
+			//call builder x times and call printer
+			function samples(){
+				while(generatedIdeas.length < numberOfSquads){
+					assembleTeam();
+					if(numberOfBins > 1000){
+						return;
+					}
+				}
+				printData();
+			}
+			
+			//print data to screen
+			function printData(){
+				if(!generatedIdeas.length){
+					return;
+				}
+				generatedIdeas.forEach(function(item, index){
+					let tableConstruction = "<table class='myTable'>";
+					tableConstruction += "<tr><th>Total PL: " + item.metadata.cost + "</th><th>Detachment: " + item.metadata.framework + "</th></tr>";
+					tableConstruction += "<tr><th>Unit</th><th>Description</th><th>Power Level</th></tr>";
+					item.data.forEach(function(subitem){
+						tableConstruction += "<tr><td>" + subitem.unit + "</td><td>" + subitem.description +  "</td><td>" + subitem.powerLevel + "</td></tr>"
+					})
+					tableConstruction += "</table><br />";
+					
+					if(index % 2 === 0){
+						$('#left').append(tableConstruction);
+					}else{
+						$('#right').append(tableConstruction);
+					}
+				});
+				$('#numberBins').text(numberOfBins + " bins");
+			}
+			
+			//utility - return random 0 to *range-1* -> perfect for array len to index calcs!
+			function pick(range){
+				return Math.floor(Math.random()*range);
+			}
+			
+			//main squad builder
+			function assembleTeam(){
+				
+				//define variables
+				let team = [];
+				let numHQ = 0;
+				let numTR = 0;
+				let numEL = 0;
+				let framework = "";
+				
+				//set framework (ie detachment starting point)
+				if(upperLimit < 750){
+					numHQ = 1;
+					numTR = 1;
+					framework = "Patrol";
+				}else if(upperLimit < 1500){
+					let chooseOption = pick(2);
+					if(chooseOption === 0){
+						numHQ = 2;
+						numTR = 3;
+						framework = "Battalion";
+					}else if(chooseOption === 1){
+						numHQ = 1;
+						numEL = 3;
+						framework = "Vanguard";
+					}
+				}else{
+					numHQ = 3;
+					numTR = 3;
+					numEL = 3;
+					framework = "Battalion + Vanguard";
+				}
+				
+				//pick hq's
+				let tempHQ = roster.hq.slice();
+				
+				for(let i=0;i<numHQ;i++){
+					//pick hq at random, note it's UID and push to team!
+					let index = pick(tempHQ.length);
+					let uniqueness = tempHQ[index].UID;
+					team.push(tempHQ[index]);
+					
+					for(let j=0;j<tempHQ.length;j++){
+						if(tempHQ[j].UID === uniqueness){
+							tempHQ.splice(j,1);
+							j--;
+						}
+					}
+				}
+				
+				//pick tr's
+				let tempTR = roster.troops.slice();
+				
+				for(let i=0;i<numTR;i++){
+					//pick troop at random, note it's UID and push to team!
+					let index = pick(tempTR.length);
+					let uniqueness = tempTR[index].UID;
+					team.push(tempTR[index]);
+					
+					for(let j=0;j<tempTR.length;j++){
+						if(tempTR[j].UID === uniqueness){
+							tempTR.splice(j,1);
+							j--;
+						}
+					}
+				}
+				
+				
+				//pick elites's
+				let tempEL = roster.elites.slice();
+				
+				for(let i=0;i<numEL;i++){
+					//pick elites at random, note it's UID and push to team!
+					let index = pick(tempEL.length);
+					let uniqueness = tempEL[index].UID;
+					team.push(tempEL[index]);
+					
+					for(let j=0;j<tempEL.length;j++){
+						if(tempEL[j].UID === uniqueness){
+							tempEL.splice(j,1);
+							j--;
+						}
+					}
+				}
+				
+				//need something for patrols to pull from anything!
+				if(framework === "Vanguard"){
+					
+					let tempNE = roster.notElites.slice();
+					let keepGoing = true;
+					while(keepGoing === true){
+						//pick notElite at random, note it's UID and push to team!
+						let index = pick(tempNE.length);
+						let uniqueness = tempNE[index].UID;
+						team.push(tempNE[index]);
+						
+						for(let j=0;j<tempNE.length;j++){
+							if(tempNE[j].UID === uniqueness){
+								tempNE.splice(j,1);
+								j--;
+							}
+						}
+						
+						let teamCost = 0;
+						team.forEach(function(item){
+							teamCost += item.powerLevel;
+						})
+						if(teamCost > upperLimit){
+							team.pop();
+							keepGoing = false;
+						}
+					}
+					
+				}else if(framework === "Battalion"){
+					
+					let tempNT = roster.notTroops.slice();
+					let keepGoing = true;
+					while(keepGoing === true){
+						//pick notElite at random, note it's UID and push to team!
+						let index = pick(tempNT.length);
+						let uniqueness = tempNT[index].UID;
+						team.push(tempNT[index]);
+						
+						for(let j=0;j<tempNT.length;j++){
+							if(tempNT[j].UID === uniqueness){
+								tempNT.splice(j,1);
+								j--;
+							}
+						}
+						
+						let teamCost = 0;
+						team.forEach(function(item){
+							teamCost += item.powerLevel;
+						})
+						if(teamCost > upperLimit){
+							team.pop();
+							keepGoing = false;
+						}
+					}
+					
+				}else{
+				
+					let tempNTE = roster.notTRorEL.slice();
+					let keepGoing = true;
+					while(keepGoing === true){
+						//pick notElite at random, note it's UID and push to team!
+						let index = pick(tempNTE.length);
+						let uniqueness = tempNTE[index].UID;
+						team.push(tempNTE[index]);
+						
+						for(let j=0;j<tempNTE.length;j++){
+							if(tempNTE[j].UID === uniqueness){
+								tempNTE.splice(j,1);
+								j--;
+							}
+						}
+						
+						let teamCost = 0;
+						team.forEach(function(item){
+							teamCost += item.powerLevel;
+						})
+						if(teamCost > upperLimit){
+							team.pop();
+							keepGoing = false;
+						}
+					}
+				
+				}
+
+				
+				//generate meta and post
+				let teamCost = 0;
+				team.forEach(function(item){
+					teamCost += item.powerLevel;
+				})
+				if(teamCost >= lowerLimit && teamCost <= upperLimit){
+					let killTeam = {
+						metadata:{
+							cost: teamCost,
+							framework: framework
+						},
+						data: team
+					}
+					generatedIdeas.push(killTeam);
+				}else{
+					numberOfBins++;
+				}
+			}
+		</script>
+	
+</body></html>
